@@ -19,7 +19,9 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'email',
+        'phone',
+        'role',
+        'is_approved',
         'password',
     ];
 
@@ -44,5 +46,27 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function hasVerifiedPhone(): bool
+    {
+        return !is_null($this->phone_verified_at); // Assuming you have a phone_verified_at column
+    }
+
+    public function sendPhoneVerificationNotification()
+    {
+        // Logic to send SMS verification (using a service like Twilio, Nexmo, etc.)
+        // For example:
+        // $this->notify(new PhoneVerificationNotification());
+    }
+
+    /**
+     * Determine if the user is an admin.
+     *
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return $this->role=='admin'; // Assuming is_admin is a boolean field
     }
 }
