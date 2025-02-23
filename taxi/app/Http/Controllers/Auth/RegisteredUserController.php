@@ -44,6 +44,24 @@ class RegisteredUserController extends Controller
                 ->withInput();
         }
 
+        // Check if the phone number is already registered
+        $existingUser = User::where('phone', $request->phone)->first();
+        if ($existingUser) {
+            // Check if the user is declined
+            if ($existingUser->is_declined) {
+                return redirect()->back()->withErrors([
+                    'phone' => 'Your application has been denied. Please try again after 3 months.',
+                ])->withInput();
+            }
+
+            // Check if the user is approved
+            if ($existingUser->is_approved) {
+                return redirect()->back()->withErrors([
+                    'phone' => 'You are already registered and approved.',
+                ])->withInput();
+            }
+        }
+
         // Create the user
         $user = User::create([
             'name' => $request->name,

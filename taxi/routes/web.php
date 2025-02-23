@@ -47,11 +47,16 @@ Route::post('/verify-phone', VerifyPhoneController::class)
 Route::middleware(['admin'])->group(function () {
     Route::get('admin/drivers', [DriverApprovalController::class, 'index'])->name('admin.drivers.index');
     Route::post('admin/drivers/{id}/approve', [DriverApprovalController::class, 'approve'])->name('admin.drivers.approve');
+    Route::post('admin/drivers/{id}/decline', [DriverApprovalController::class, 'decline'])->name('admin.drivers.decline');
 });
 
 Route::get('/waiting-approval', function () {
     return view('auth.waiting-approval');
 })->name('waiting.approval');
+
+Route::get('/declined', function () {
+    return view('auth.declined');
+})->name('declined');
 
 // Guest routes
 Route::middleware('guest')->group(function () {

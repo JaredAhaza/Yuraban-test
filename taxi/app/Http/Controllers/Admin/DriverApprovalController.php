@@ -19,7 +19,13 @@ class DriverApprovalController extends Controller
           return redirect()->route('home'); // Redirect if not an admin
         }
 
-        $drivers = User::where('role', 'driver')->where('is_approved', false)->get();
+        $drivers = User::where('is_approved', false)
+                       ->where('is_declined', false) // Exclude declined drivers
+                       ->get();
+
+        // Log the drivers being fetched
+        \Log::info('Drivers awaiting approval:', $drivers->toArray());
+
         return view('admin.driver-approval', compact('drivers'));
     }
     /**
@@ -33,6 +39,19 @@ class DriverApprovalController extends Controller
 
         return redirect()->back()->with('status', 'Driver approved successfully');
     }
+
+    /**
+     * Decline approval of specified driver
+     */
+    public function decline($id)
+    {
+        $driver = User::findOrFail($id);
+        $driver->is_approved = false;
+        $driver->is_declined = true;
+        $driver->save();
+
+        return redirect()->route('admin.drivers.index')->with('status', 'Driver application declined successfully.');
+    }
 }
 
 class DriverDashboardController extends Controller
@@ -41,10 +60,9 @@ class DriverDashboardController extends Controller
     {
         $user = Auth::user();
 
-        //Check if the user is a driver is approved
-        if ($user->role !== 'driver' || !$user->is_approved) {
-            return redirect()->route('waiting.approval');// Redirect to waiting approval if not approved yet
-        }
+        //Check if the user is a driver is approved or declined
+        $drivers = User::where('role', 'driver')->where('is_approved', true)->where('is_declined', false)->get();
+        return view('admin.driver-dashboard', compact('drivers'));
 
         //show the driver's dashboard
         return view('driver.dashboard');

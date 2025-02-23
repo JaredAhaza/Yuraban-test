@@ -33,13 +33,19 @@ class AuthenticatedSessionController extends Controller
 
         // Attempt to authenticate the user
         if (Auth::attempt(['phone' => $request->phone, 'password' => $request->password])) {
-            // Authentication passed, check if the user is approved
+            // Authentication passed, check if the user is declined
             $user = Auth::user();
-            Log::info('User logged in', ['user' => $user]);
+            
+            // Check if the user is declined
+            if ($user->is_declined) {
+                // If the user is declined, log them out and redirect to the declined view
+                Auth::logout();
+                return redirect()->route('declined')->with('error', 'Your application has been denied. Please try again after 3 months.');
+            }
 
+            // Check if the user is a driver and not approved
             if ($user->role === 'driver' && !$user->is_approved) {
-                // If the user is a driver and not approved, log them out and redirect to waiting approval
-                Log::warning('Driver not approved, logging out', ['user' => $user]);
+                // If the user is not approved, log them out and redirect to waiting approval
                 Auth::logout();
                 return redirect()->route('waiting.approval')->with('error', 'Your account is not approved yet.');
             }
