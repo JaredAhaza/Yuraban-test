@@ -17,12 +17,11 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => [
+            'phone' => [
                 'required',
                 'string',
-                'lowercase',
-                'email',
-                'max:255',
+                'regex:/^\+\d{12}$/', // Adjust the regex as needed for your phone number format
+                'max:15', // Adjust the max length as needed
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
         ];

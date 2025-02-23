@@ -43,7 +43,12 @@ Route::get('/verify-phone', PhoneVerificationPromptController::class)
 
 Route::post('/verify-phone', VerifyPhoneController::class)
     ->middleware(['auth']);
-    // Admin routes for driver approval
+
+Route::post('/verification/send', [PhoneVerificationNotificationController::class, 'send'])
+    ->middleware(['auth'])
+    ->name('verification.send');
+
+// Admin routes for driver approval
 Route::middleware(['admin'])->group(function () {
     Route::get('admin/drivers', [DriverApprovalController::class, 'index'])->name('admin.drivers.index');
     Route::post('admin/drivers/{id}/approve', [DriverApprovalController::class, 'approve'])->name('admin.drivers.approve');

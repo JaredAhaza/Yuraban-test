@@ -24,6 +24,11 @@ class ConfirmablePasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validate that the password is a 4-digit PIN
+        $request->validate([
+            'password' => 'required|digits:4', // Ensure it's a 4-digit PIN
+        ]);
+
         if (! Auth::guard('web')->validate([
             'phone' => $request->user()->phone,
             'password' => $request->password,

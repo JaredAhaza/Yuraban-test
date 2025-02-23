@@ -29,12 +29,17 @@ class VerifyPhoneController extends Controller
         // Mark the phone as verified
         $request->user()->markPhoneAsVerified();
 
-        return redirect()->intended(route('dashboard'));
+        // Redirect to intended route with a success message
+        return redirect()->intended(route('dashboard'))->with('status', 'Phone verified successfully!');
     }
 
     protected function verifyCode($code)
     {
-        // Implement your logic to verify the code (e.g., check against a database or service)
+        // Implement your logic to verify the code
+        // For example, you might check the code against a database or an external service
+        // This is a placeholder for actual verification logic
+        // Example: return $code === session('verification_code');
+
         return true; // Placeholder for actual verification logic
     }
 }
