@@ -13,11 +13,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Clear existing users if needed (optional)
+        // User::truncate(); // Uncomment this line to clear existing users
 
+        // Create a test user with a unique phone number
         User::factory()->create([
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'phone' => '+11234567890', // Ensure this phone number is unique
         ]);
+
+        // Create multiple users with unique phone numbers
+        for ($i = 0; $i < 10; $i++) {
+            User::factory()->create([
+                'phone' => '+1' . fake()->unique()->numberBetween(1000000000, 9999999999), // Generate unique phone numbers
+            ]);
+        }
+
+        $this->call(CountiesSeeder::class); // Call the CountiesSeeder
     }
 }

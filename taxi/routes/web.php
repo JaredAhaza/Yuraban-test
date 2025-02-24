@@ -12,6 +12,9 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Admin\DriverDashboardController;
+use App\Http\Controllers\RideController;
+use App\Http\Controllers\DriverController;
+use App\Http\Controllers\CustomerController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,6 +28,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Driver dashboard route
+    Route::get('/driver/dashboard', [DriverDashboardController::class, 'index'])->name('driver.dashboard');
+
+    // Driver routes
+
 });
 
 Route::get('/confirm-password', [ConfirmablePasswordController::class, 'show'])
@@ -53,6 +62,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('admin/drivers', [DriverApprovalController::class, 'index'])->name('admin.drivers.index');
     Route::post('admin/drivers/{id}/approve', [DriverApprovalController::class, 'approve'])->name('admin.drivers.approve');
     Route::post('admin/drivers/{id}/decline', [DriverApprovalController::class, 'decline'])->name('admin.drivers.decline');
+    Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
 });
 
 Route::get('/waiting-approval', function () {
@@ -104,10 +114,17 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 
-    // Driver dashboard route
-    Route::get('/driver/dashboard', [DriverDashboardController::class, 'index'])
-        ->name('driver.dashboard');
+    // Ride routes
+    Route::get('/book-ride', [RideController::class, 'create'])
+        ->name('ride.create');
+    Route::post('/book-ride', [RideController::class, 'store'])
+        ->name('ride.store');
 
+    // Customer routes
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+
+    // Ride requests
+    Route::get('/ride-requests', [RideController::class, 'requests'])->name('ride.requests');
 });
 
 require __DIR__.'/auth.php';

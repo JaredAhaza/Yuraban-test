@@ -25,11 +25,20 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'phone' => $this->generateUniquePhoneNumber(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Generate a unique phone number that matches the regex pattern.
+     *
+     * @return string
+     */
+    private function generateUniquePhoneNumber(): string
+    {
+        return '+1' . fake()->unique()->numberBetween(1000000000, 9999999999);
     }
 
     /**

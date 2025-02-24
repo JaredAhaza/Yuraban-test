@@ -15,6 +15,15 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('drivers.index')" :active="request()->routeIs('drivers.index')">
+                        {{ __('Drivers') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('ride.create')" :active="request()->routeIs('ride.create')">
+                        {{ __('Book Ride') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('ride.requests')" :active="request()->routeIs('ride.requests')">
+                        {{ __('Ride Requests') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -69,6 +78,15 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('drivers.index')" :active="request()->routeIs('drivers.index')">
+                {{ __('Drivers') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('ride.create')" :active="request()->routeIs('ride.create')">
+                {{ __('Book Ride') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('ride.requests')" :active="request()->routeIs('ride.requests')">
+                {{ __('Ride Requests') }}
             </x-responsive-nav-link>
         </div>
 
