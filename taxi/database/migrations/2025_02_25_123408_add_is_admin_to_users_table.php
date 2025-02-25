@@ -12,12 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Check if email column exists before dropping it
-            if (Schema::hasColumn('users', 'email')) {
-                $table->dropColumn('email');
-            }
-            
-            // Rest of the migration...
+            $table->boolean('is_admin')->default(false);
         });
     }
 
@@ -27,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('email')->unique()->nullable();
+            $table->dropColumn('is_admin');
         });
     }
 };

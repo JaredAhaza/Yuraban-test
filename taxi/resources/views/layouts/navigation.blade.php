@@ -15,15 +15,35 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('drivers.index')" :active="request()->routeIs('drivers.index')">
-                        {{ __('Drivers') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('ride.create')" :active="request()->routeIs('ride.create')">
-                        {{ __('Book Ride') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('ride.requests')" :active="request()->routeIs('ride.requests')">
-                        {{ __('Ride Requests') }}
-                    </x-nav-link>
+                    
+                    @if(Auth::user()->role === 'admin')
+                        <!-- Admin Links -->
+                        <x-nav-link :href="route('drivers.index')" :active="request()->routeIs('drivers.index')">
+                            {{ __('Drivers') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.index')">
+                            {{ __('Customers') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('ride.requests')" :active="request()->routeIs('ride.requests')">
+                            {{ __('Ride Requests') }}
+                        </x-nav-link>
+                    @elseif(Auth::user()->role === 'driver')
+                        <!-- Driver Links -->
+                        <x-nav-link :href="route('driver.rides')" :active="request()->routeIs('driver.rides')">
+                            {{ __('My Rides') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('ride.requests')" :active="request()->routeIs('ride.requests')">
+                            {{ __('Ride Requests') }}
+                        </x-nav-link>
+                    @elseif(Auth::user()->role === 'customer')
+                        <!-- Customer Links -->
+                        <x-nav-link :href="route('customer.rides')" :active="request()->routeIs('customer.rides')">
+                            {{ __('My Rides') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('ride.create')" :active="request()->routeIs('ride.create')">
+                            {{ __('Book Ride') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -79,22 +99,42 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('drivers.index')" :active="request()->routeIs('drivers.index')">
-                {{ __('Drivers') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('ride.create')" :active="request()->routeIs('ride.create')">
-                {{ __('Book Ride') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('ride.requests')" :active="request()->routeIs('ride.requests')">
-                {{ __('Ride Requests') }}
-            </x-responsive-nav-link>
+            
+            @if(Auth::user()->role === 'admin')
+                <!-- Admin Links (Responsive) -->
+                <x-responsive-nav-link :href="route('drivers.index')" :active="request()->routeIs('drivers.index')">
+                    {{ __('Drivers') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.index')">
+                    {{ __('Customers') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('ride.requests')" :active="request()->routeIs('ride.requests')">
+                    {{ __('Ride Requests') }}
+                </x-responsive-nav-link>
+            @elseif(Auth::user()->role === 'driver')
+                <!-- Driver Links (Responsive) -->
+                <x-responsive-nav-link :href="route('driver.rides')" :active="request()->routeIs('driver.rides')">
+                    {{ __('My Rides') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('ride.requests')" :active="request()->routeIs('ride.requests')">
+                    {{ __('Ride Requests') }}
+                </x-responsive-nav-link>
+            @elseif(Auth::user()->role === 'customer')
+                <!-- Customer Links (Responsive) -->
+                <x-responsive-nav-link :href="route('customer.rides')" :active="request()->routeIs('customer.rides')">
+                    {{ __('My Rides') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('ride.create')" :active="request()->routeIs('ride.create')">
+                    {{ __('Book Ride') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
             <div class="px-4">
                 <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->phone }}</div> <!-- Changed from email to phone -->
             </div>
 
             <div class="mt-3 space-y-1">

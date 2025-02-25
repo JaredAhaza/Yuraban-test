@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class County extends Model
 {
-    protected $fillable = ['name', 'sub_counties'];
+    protected $fillable = ['county_name', 'sub_counties']; // Changed from 'name' to 'county_name'
 
     protected $casts = [
-        'sub_counties' => 'array', // Cast the sub_counties attribute to an array
+        'sub_counties' => 'array',
     ];
 }

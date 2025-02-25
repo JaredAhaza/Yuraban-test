@@ -2,33 +2,32 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array
      */
     protected $fillable = [
         'name',
         'phone',
         'role',
         'is_approved',
+        'county_id',    // Add this for the county
+        'subcounty',    // Add this for the subcounty name
         'password',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array
      */
     protected $hidden = [
         'password',
@@ -36,30 +35,13 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Get the county associated with the driver.
      */
-    protected function casts(): array
+    public function county()
     {
-        return [
-            'phone_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(County::class);
     }
-
-    public function hasVerifiedPhone(): bool
-    {
-        return !is_null($this->phone_verified_at); // Assuming you have a phone_verified_at column
-    }
-
-    public function sendPhoneVerificationNotification()
-    {
-        // Logic to send SMS verification (using a service like Twilio, Nexmo, etc.)
-        // For example:
-        // $this->notify(new PhoneVerificationNotification());
-    }
-
+    
     /**
      * Determine if the user is an admin.
      *
@@ -67,6 +49,6 @@ class User extends Authenticatable
      */
     public function isAdmin()
     {
-        return $this->role=='admin'; // Assuming is_admin is a boolean field
+        return $this->is_admin;
     }
 }

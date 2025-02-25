@@ -30,5 +30,6 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(CountiesSeeder::class); // Call the CountiesSeeder
+        $this->call(AdminUserSeeder::class); // Call the AdminUserSeeder
     }
 }
