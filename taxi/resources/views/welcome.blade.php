@@ -107,7 +107,7 @@
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
                         // Use a reverse geocoding service to get the address from lat/lng
-                        fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=YOUR_API_KEY_HERE`)
+                        fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyCfDf_ytgEm4YDsLdzVqUcZJ4mV-cqyKTw`)
                             .then(response => response.json())
                             .then(data => {
                                 console.log(data); // Log the response for debugging

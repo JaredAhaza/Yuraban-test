@@ -41,7 +41,19 @@ class User extends Authenticatable
     {
         return $this->belongsTo(County::class);
     }
-    
+
+    //get rides for customer
+    public function ridesAsCustomer()
+    {
+        return $this->hasMany(Ride::class, 'customer_id');
+    }
+
+    //get rides for driver
+    public function ridesAsDriver()
+    {
+        return $this->hasMany(Ride::class, 'driver_id');
+    }
+
     /**
      * Determine if the user is an admin.
      *

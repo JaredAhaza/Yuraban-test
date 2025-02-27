@@ -6,7 +6,7 @@
         <h2 class="text-2xl font-bold mb-4">Registered Customers</h2>
 
         <!-- Filtering Form -->
-        <form method="GET" action="{{ route('customers.index') }}" class="mb-4">
+        <form method="GET" action="{{ route('admin.customers.index') }}" class="mb-4">
             <label for="filter_date" class="block text-sm font-medium text-gray-700">Filter by Registration Date:</label>
             <input type="date" id="filter_date" name="filter_date" value="{{ $filterDate }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
             <button type="submit" class="mt-2 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Filter</button>
