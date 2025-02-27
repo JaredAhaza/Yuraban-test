@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Ride;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
 
 class DriverRideController extends Controller
 {
@@ -14,17 +16,32 @@ class DriverRideController extends Controller
      */
     public function index()
     {
+        $userId = Auth::id();
+    
+        // Get available rides that the driver has NOT declined
         $availableRides = Ride::where('status', 'pending')
-                            ->whereNull('driver_id')
-                            ->latest()
-                            ->get();
-
-        $myRides = Auth::user()->ridesAsDriver()
-                    ->latest()
-                    ->get();
-
-        return view('drivers.rides.index', compact('availableRides', 'myRides'));
+            ->whereNull('driver_id')
+            ->where(function ($query) use ($userId) {
+                $query->whereNull('declined_by')
+                    ->orWhereRaw("NOT JSON_CONTAINS(declined_by, ?)", [$userId]);
+            })
+            ->latest()
+            ->get();
+    
+        // Get rides assigned to this driver
+        $myRides = Auth::user()->ridesAsDriver()->latest()->get();
+    
+        // Get rides that this driver has declined
+        $declinedRides = Ride::whereNotNull('declined_by')
+            ->whereRaw("JSON_CONTAINS(declined_by, ?)", [$userId])
+            ->latest()
+            ->get();
+    
+        return view('drivers.rides.index', compact('availableRides', 'myRides', 'declinedRides'));
     }
+    
+    
+    
 
     /**
      * Accept a ride request.
@@ -49,6 +66,47 @@ class DriverRideController extends Controller
         return redirect()->route('driver.rides.index')
             ->with('success', 'Ride accepted. Proceed to the pickup location.');
     }
+
+    /**
+     * Decline a ride request.
+     */
+    public function decline(Ride $ride)
+    {
+        if ($ride->status !== 'pending' || $ride->driver_id !== null) {
+            return back()->with('error', 'This ride is no longer available.');
+        }
+    
+        $userId = Auth::id();
+        Log::info("Driver {$userId} is trying to decline ride ID {$ride->id}");
+    
+        // Ensure `declined_by` is always stored as an array
+        $declinedDrivers = $ride->declined_by ? json_decode($ride->declined_by, true) : [];
+    
+        Log::info("Current declined_by before update: ", ['declined_by' => $declinedDrivers]);
+    
+        // If driver hasn't already declined, add them
+        if (!in_array($userId, $declinedDrivers)) {
+            $declinedDrivers[] = $userId;
+        }
+    
+        Log::info("Updated declined_by: ", ['declined_by' => $declinedDrivers]);
+    
+        // Update only `declined_by`, keep `status` as pending
+        $ride->update([
+            'declined_by' => json_encode($declinedDrivers),
+            'declined_at' => now(),
+        ]);
+    
+        Log::info("Ride {$ride->id} declined successfully by driver {$userId}");
+    
+        return redirect()->route('driver.rides.index')
+            ->with('success', 'Ride declined successfully.');
+    }
+    
+    
+    
+
+
 
     /**
      * Start a ride.

@@ -19,7 +19,7 @@
                 @if($ride->status === 'pending')
                     <tr>
                         <td>{{ $ride->id }}</td>
-                        <td>{{ $ride->customer->name ?? 'N/A' }}</td>
+                        <td>{{ $ride->customer->first_name ?? 'N/A' }}</td>
                         <td>{{ $ride->pickup_location }}</td>
                         <td>{{ $ride->dropoff_location }}</td>
                         <td>

@@ -21,10 +21,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Dashboard Route
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
@@ -32,6 +28,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 });
 
 // Password Confirmation Routes
@@ -120,6 +121,7 @@ Route::middleware(['auth', 'driver', 'driver.approved'])->prefix('driver')->name
     Route::post('/rides/{ride}/start', [DriverRideController::class, 'start'])->name('rides.start');
     Route::post('/rides/{ride}/complete', [DriverRideController::class, 'complete'])->name('rides.complete');
     Route::post('/rides/{ride}/cancel', [DriverRideController::class, 'cancel'])->name('rides.cancel');
+    Route::post('/rides/{ride}/decline', [DriverRideController::class, 'decline'])->name('rides.decline');
 });
 
 

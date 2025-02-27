@@ -24,6 +24,7 @@ class Ride extends Model
         'pickup_coordinates',
         'destination_coordinates',
         'cancellation_reason',
+        'declined_by',
     ];
 
     protected $casts = [

@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('content')
@@ -26,8 +27,8 @@
             @foreach($rides as $ride)
                 <tr>
                     <td>{{ $ride->id }}</td>
-                    <td>{{ $ride->customer->name ?? 'N/A' }}</td>
-                    <td>{{ $ride->driver->name ?? 'Unassigned' }}</td>
+                    <td>{{ $ride->customer->first_name ?? 'N/A' }}</td>
+                    <td>{{ $ride->driver->first_name ?? 'Unassigned' }}</td>
                     <td>{{ $ride->pickup_location }}</td>
                     <td>{{ $ride->destination }}</td>
                     <td><strong>{{ ucfirst($ride->status) }}</strong></td>

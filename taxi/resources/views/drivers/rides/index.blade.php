@@ -31,10 +31,14 @@
                             <td>{{ $ride->destination }}</td>
                             <td>{{ $ride->created_at->format('Y-m-d H:i') }}</td>
                             <td>
-                            <form action="{{ route('driver.rides.accept', $ride->id) }}" method="POST" style="display: inline;">
-                                @csrf
-                                <button type="submit" class="btn btn-success btn-sm">Accept</button>
-                            </form>
+                                <form action="{{ route('driver.rides.accept', $ride->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                </form>
+                                <form action="{{ route('driver.rides.decline', $ride->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                                </form>
                             </td>
                         </tr>
                     @empty
@@ -47,7 +51,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card mb-4">
         <div class="card-header">
             <h5>My Assigned Rides</h5>
         </div>
@@ -57,6 +61,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Pickup Location</th>
+                        <th>Customer Phone</th>
                         <th>Destination</th>
                         <th>Status</th>
                         <th>Requested At</th>
@@ -68,6 +73,13 @@
                         <tr>
                             <td>{{ $ride->id }}</td>
                             <td>{{ $ride->pickup_location }}</td>
+                            <td>
+                                @if($ride->customer)
+                                    {{ $ride->customer->phone }}
+                                @else
+                                    <span class="text-muted">Not Assigned</span>
+                                @endif
+                            </td>
                             <td>{{ $ride->destination }}</td>
                             <td>
                                 @if($ride->status == 'pending')
@@ -118,5 +130,40 @@
             </table>
         </div>
     </div>
+
+    <div class="card mb-4">
+    <div class="card-header">
+        <h5>Declined Rides</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Pickup Location</th>
+                    <th>Destination</th>
+                    <th>Requested At</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($declinedRides as $ride)
+                    <tr>
+                        <td>{{ $ride->id }}</td>
+                        <td>{{ $ride->pickup_location }}</td>
+                        <td>{{ $ride->destination }}</td>
+                        <td>{{ $ride->created_at->format('Y-m-d H:i') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center">No declined rides.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
 </div>
 @endsection

@@ -27,16 +27,20 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $user->fill($request->validated());
-
-        if ($request->user()->isDirty('phone')) {
-            $user->phone_verified_at = null;
-        }
-
-        $user->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        $validatedData = $request->validated();
+    
+        // Update user details
+        $user->update([
+            'first_name' => $validatedData['first_name'],
+            'last_name' => $validatedData['last_name'],
+            'email' => $validatedData['email'],
+            'phone' => $validatedData['phone'] ?? null,
+        ]);
+    
+        return redirect()->route('dashboard')->with('status', 'profile-updated');
     }
+    
+    
 
     /**
      * Delete the user's account.

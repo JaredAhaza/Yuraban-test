@@ -19,6 +19,7 @@
                         <th>ID</th>
                         <th>Pickup Location</th>
                         <th>Destination</th>
+                        <th>Phone</th>
                         <th>Driver</th>
                         <th>Status</th>
                         <th>Requested At</th>
@@ -33,7 +34,14 @@
                             <td>{{ $ride->destination }}</td>
                             <td>
                                 @if($ride->driver)
-                                    {{ $ride->driver->name }}
+                                    {{ $ride->driver->phone }}
+                                @else
+                                    <span class="text-muted">Not Assigned</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($ride->driver)
+                                    {{ $ride->driver->first_name }}
                                 @else
                                     <span class="text-muted">Not Assigned</span>
                                 @endif
