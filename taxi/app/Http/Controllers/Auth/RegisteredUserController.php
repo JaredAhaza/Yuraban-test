@@ -32,88 +32,95 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    /**
+     * Customer Registration API
+     */
+    public function registerCustomer(Request $request)
     {
-        $request->validate([
+            
+
+        $validated = Validator::make($request->all(),[
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'in:male,female,other'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['required', 'string', 'regex:/^\+\d{12}$/', 'unique:users,phone'],
-            'role' => ['required', 'in:customer,driver,admin'],
             'county_id' => 'required|exists:counties,id',
             'subcounty' => 'required|string|max:255',
-            'password' => ['required', 'string', 'digits:4']
-        ]);
-    
-        $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'gender' => $request->gender,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'role' => $request->role,
-            'county_id' => $request->county_id,
-            'subcounty' => $request->subcounty,
-            'password' => Hash::make($request->password),
-        ]);
-    
-        event(new Registered($user));
-        if ($user->role === 'driver' && !$user->is_approved) {
-            return redirect()->route('waiting.approval')->with('status', 'Your application is under review.');
-        }
-    
-        return redirect()->route('login')->with('success', 'Account created successfully! Please log in.');
-    }
-    
-
-    public function storeApi(Request $request)
-    {
-        // Base validation rules
-        $rules = [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'gender' => ['required', 'in:male,female,other'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['required', 'string', 'regex:/^\+\d{12}$/', 'unique:users,phone'],
-            'role' => ['required', 'in:customer,driver,admin'],
-            'county_id' => 'required|exists:counties,id',
-            'subcounty' => 'required|string|max:255',
-            'password' => ['required', 'string', 'digits:4']
-        ];
+            'password' => ['required', 'string', 'digits:4']]);
         
-        // Add county and subcounty validation for drivers
+            if ($validated->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validated->errors()
+                ], 400);
+            }
+            
+            $validatedData = $validated->validated();
+        // Create user
         $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'gender' => $request->gender,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'role' => $request->role,
-            'county_id' => $request->county_id,
-            'subcounty' => $request->subcounty,
-            'password' => Hash::make($request->password),
+            'first_name' => $validatedData['first_name'],
+            'last_name' => $validatedData['last_name'],
+            'gender' => $validatedData['gender'],
+            'email' => $validatedData['email'],
+            'phone' => $validatedData['phone'],
+            'role' => 'customer',
+            'county_id' => $validatedData['county_id'],
+            'subcounty' => $validatedData['subcounty'],
+            'password' => Hash::make($validatedData['password']),
         ]);
-        
 
-        event(new Registered($user));
 
-        // Redirect based on role
-        if ($user->role === 'driver' && !$user->is_approved) {
-            // Redirect to waiting approval page without logging in
-            return response()->json([
-                'Status' => 'Your application is under review.',
-            ], 200);
-        } elseif ($user->role !== 'driver') {
-            // Redirect to login page for non-driver roles
-            return response()->json([
-                'Status' => 'Registration successful. Please log in.',
-            ], 200);
-        }
-
-        // Redirect to login page
         return response()->json([
-            'Status' => 'Your account has been created. Please login.',
-        ], 200);
+            'status' => 'success',
+            'message' => 'Customer registration successful. Please log in.',
+            'user' => $user
+        ], 201);
+    }
+
+    /**
+     * Driver Registration API
+     */
+    public function registerDriver(Request $request)
+    {
+        // Validation rules
+        $validated = Validator::make($request->all(),[
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'gender' => ['required', 'in:male,female,other'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['required', 'string', 'regex:/^\+\d{12}$/', 'unique:users,phone'],
+            'county_id' => 'required|exists:counties,id',
+            'subcounty' => 'required|string|max:255',
+            'password' => ['required', 'string', 'digits:4']]);
+        
+            if ($validated->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validated->errors()
+                ], 400);
+            }
+            
+            $validatedData = $validated->validated();
+        // Create user
+        $user = User::create([
+            'first_name' => $validatedData['first_name'],
+            'last_name' => $validatedData['last_name'],
+            'gender' => $validatedData['gender'],
+            'email' => $validatedData['email'],
+            'phone' => $validatedData['phone'],
+            'role' => 'driver',
+            'county_id' => $validatedData['county_id'],
+            'subcounty' => $validatedData['subcounty'],
+            'password' => Hash::make($validatedData['password']),
+        ]);
+
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Driver registration successful. Please log in.',
+            'user' => $user
+        ], 201);
     }
 }
+

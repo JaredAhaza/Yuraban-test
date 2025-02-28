@@ -131,8 +131,15 @@ Route::prefix('api')->group(function () {
     Route::get('/ping', function () {
         return response()->json(['message' => 'pong']);
     });
-    Route::post('register', [RegisteredUserController::class, 'storeApi'])
+
+    Route::post('/customer/register', [RegisteredUserController::class, 'registerCustomer'])
     ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/driver/register', [RegisteredUserController::class, 'registerDriver'])
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/customer/login', [AuthenticatedSessionController::class, 'customerLogin'])
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/driver/login', [AuthenticatedSessionController::class, 'driverLogin']);
+    Route::post('/logout', [AuthenticatedSessionController::class, 'logoutApi'])->middleware('auth:sanctum');
 });
 
 require __DIR__.'/auth.php';

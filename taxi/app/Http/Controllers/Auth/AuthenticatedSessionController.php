@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -59,6 +60,95 @@ class AuthenticatedSessionController extends Controller
         return back()->withErrors([
             'phone' => 'The provided credentials do not match our records.',
         ]);
+    }
+
+    /**
+     * Customer Login API
+     */
+    public function customerLogin(Request $request)
+    {
+        // Validate request
+        $rules->validate([
+            'phone' => 'required|string',
+            'password' => 'required|string|digits:4',
+        ]);
+
+        // Attempt to find user
+        $user = User::where('phone', $request->phone)
+                    ->where('role', 'customer')
+                    ->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        // Create API Token
+        $token = $user->createToken('customer-token')->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Login successful',
+            'user' => $user,
+            'token' => $token
+        ], 200);
+    }
+
+    /**
+     * Driver Login API
+     */
+    public function driverLogin(Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'phone' => 'required|string',
+            'password' => 'required|string|digits:4',
+        ]);
+
+        // Attempt to find user
+        $user = User::where('phone', $request->phone)
+                    ->where('role', 'driver')
+                    ->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        // Check if driver is approved
+        if (!$user->is_approved) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Your account is not approved yet. Please wait for admin approval.'
+            ], 403);
+        }
+
+        // Create API Token
+        $token = $user->createToken('driver-token')->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Login successful',
+            'user' => $user,
+            'token' => $token
+        ], 200);
+    }
+
+    /**
+     * Logout API
+     */
+    public function logoutApi(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Logged out successfully'
+        ], 200);
     }
 
     /**
