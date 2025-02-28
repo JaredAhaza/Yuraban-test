@@ -16,20 +16,24 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Phone Number</th>
                         <th>Pickup Location</th>
                         <th>Destination</th>
-                        <th>Requested At</th>
+                        <th>No of Passangers</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($availableRides as $ride)
                         <tr>
-                            <td>{{ $ride->id }}</td>
+                            <td>{{ $ride->customer->first_name }}</td>
+                            <td>{{ $ride->customer->last_name }}</td>
+                            <td>{{ $ride->customer->phone }}</td>
                             <td>{{ $ride->pickup_location }}</td>
                             <td>{{ $ride->destination }}</td>
-                            <td>{{ $ride->created_at->format('Y-m-d H:i') }}</td>
+                            <td>{{ $ride->passengers }}</td>
                             <td>
                                 <form action="{{ route('driver.rides.accept', $ride->id) }}" method="POST" style="display: inline;">
                                     @csrf
@@ -163,7 +167,16 @@
     </div>
 </div>
 
-
+<div class="text-center mt-4">
+    <form action="{{ route('driver.toggleOnline') }}" method="POST" class="d-inline">
+        @csrf
+        @if(auth()->user()->is_online)
+            <button type="submit" class="btn btn-danger">Go Offline</button>
+        @else
+            <button type="submit" class="btn btn-success">Go Online</button>
+        @endif
+    </form>
+</div>
 
 </div>
 @endsection

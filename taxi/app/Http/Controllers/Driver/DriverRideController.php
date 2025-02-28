@@ -16,20 +16,24 @@ class DriverRideController extends Controller
      */
     public function index()
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user->id;
     
-        // Get available rides that the driver has NOT declined
-        $availableRides = Ride::where('status', 'pending')
-            ->whereNull('driver_id')
-            ->where(function ($query) use ($userId) {
-                $query->whereNull('declined_by')
-                    ->orWhereRaw("NOT JSON_CONTAINS(declined_by, ?)", [$userId]);
-            })
-            ->latest()
-            ->get();
+        // Check if the driver is online before showing available rides
+        $availableRides = collect(); // Default to an empty collection
+        if ($user->is_online) {
+            $availableRides = Ride::where('status', 'pending')
+                ->whereNull('driver_id')
+                ->where(function ($query) use ($userId) {
+                    $query->whereNull('declined_by')
+                        ->orWhereRaw("NOT JSON_CONTAINS(declined_by, ?)", [$userId]);
+                })
+                ->latest()
+                ->get();
+        }
     
         // Get rides assigned to this driver
-        $myRides = Auth::user()->ridesAsDriver()->latest()->get();
+        $myRides = $user->ridesAsDriver()->latest()->get();
     
         // Get rides that this driver has declined
         $declinedRides = Ride::whereNotNull('declined_by')
@@ -39,6 +43,7 @@ class DriverRideController extends Controller
     
         return view('drivers.rides.index', compact('availableRides', 'myRides', 'declinedRides'));
     }
+    
     
     
     
@@ -177,4 +182,15 @@ class DriverRideController extends Controller
         return redirect()->route('driver.rides.index')
             ->with('success', 'Ride cancelled.');
     }
+
+    public function toggleOnline()
+    {
+    $user = Auth::user();
+    $user->is_online = !$user->is_online;
+    $user->save();
+
+    $status = $user->is_online ? 'Online' : 'Offline';
+    return back()->with('success', "You are now {$status}.");
+    }
+
 }

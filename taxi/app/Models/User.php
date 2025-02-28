@@ -25,6 +25,7 @@ class User extends Authenticatable
         'county_id',    // Add this for the county
         'subcounty',    // Add this for the subcounty name
         'password',
+        'is_online',
     ];
 
     /**

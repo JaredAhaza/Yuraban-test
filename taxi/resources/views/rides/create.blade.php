@@ -3,6 +3,12 @@
 @section('content')
 <div class="container">
     <h2>Request a Ride</h2>
+    {{-- Flash Messages --}}
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
 
     <form action="{{ route('customer.rides.store') }}" method="POST">
         @csrf
@@ -18,6 +24,12 @@
         <div class="form-group">
             <label for="destination">Drop-off Location:</label>
             <input type="text" id="destination" name="destination" class="form-control" placeholder="Enter drop-off location" required>
+        </div>
+
+        {{-- Number of Passengers --}}
+        <div class="form-group">
+            <label for="passengers">Number of Passengers:</label>
+            <input type="number" id="passengers" name="passengers" class="form-control" min="1" max="6" value="1" required>
         </div>
 
         {{-- Hidden Fields for Coordinates --}}

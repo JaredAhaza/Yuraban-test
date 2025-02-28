@@ -81,7 +81,8 @@
         <table class="min-w-full border border-gray-300">
             <thead>
                 <tr class="bg-gray-100">
-                    <th class="border border-gray-300 px-4 py-2">Name</th>
+                    <th class="border border-gray-300 px-4 py-2">First Name</th>
+                    <th class="border border-gray-300 px-4 py-2">Last Name</th>
                     <th class="border border-gray-300 px-4 py-2">Phone</th>
                     <th class="border border-gray-300 px-4 py-2">County</th>
                     <th class="border border-gray-300 px-4 py-2">Sub-County</th>
@@ -97,7 +98,8 @@
                 @else
                     @foreach ($drivers as $driver)
                         <tr>
-                            <td class="border border-gray-300 px-4 py-2">{{ $driver->name }}</td>
+                            <td class="border border-gray-300 px-4 py-2">{{ $driver->first_name }}</td>
+                            <td class="border border-gray-300 px-4 py-2">{{ $driver->last_name }}</td>
                             <td class="border border-gray-300 px-4 py-2">{{ $driver->phone }}</td>
                             <td class="border border-gray-300 px-4 py-2">
                                 @if($driver->county)

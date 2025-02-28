@@ -14,20 +14,25 @@ class DriverApprovalController extends Controller
      */
     public function index()
     {
-        if (!Auth::user()->isAdmin()) {
-        //    return response()->json(['message' => 'Unauthorized','User'=> Auth::user(), 'isAdmin' => Auth::user()->isAdmin()]);
-          return redirect()->route('home'); // Redirect if not an admin
+        $user = Auth::user();
+    
+        // Check if the user's role is NOT 'admin'
+        if ($user->role !== 'admin') {
+            \Log::error('Unauthorized access attempt to driver approval page by user ID: ' . $user->id);
+            return redirect()->route('home'); // Redirect if not an admin
         }
-
+    
+        // Fetch drivers awaiting approval
         $drivers = User::where('is_approved', false)
                        ->where('is_declined', false) // Exclude declined drivers
                        ->get();
-
+    
         // Log the drivers being fetched
         \Log::info('Drivers awaiting approval:', $drivers->toArray());
-
+    
         return view('admin.driver-approval', compact('drivers'));
     }
+    
     /**
      * Approve specified driver
      */

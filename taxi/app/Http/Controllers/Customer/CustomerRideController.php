@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ride;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Events\RideRequested;
@@ -38,9 +39,21 @@ class CustomerRideController extends Controller
         $validated = $request->validate([
             'pickup_location' => 'required|string|max:255',
             'pickup_coordinates' => 'required|string',
-            'destination' => 'required|string|max:255',  // Corrected field name
+            'destination' => 'required|string|max:255',
             'destination_coordinates' => 'required|string',
+            'passengers' => 'required|integer|min:1|max:6', // Add validation for passengers
         ]);
+
+        // Check if there are any online drivers
+        $onlineDrivers = User::where('role', 'driver')
+        ->where('is_online', true)
+        ->exists();
+    
+
+        if (!$onlineDrivers) {
+            return redirect()->back()->with('error', 'No drivers are online at the moment. Please try again later.');
+        }
+        
 
         // Auto-set scheduled_at to current time
         $validated['scheduled_at'] = now();
@@ -52,10 +65,11 @@ class CustomerRideController extends Controller
         $ride->destination_coordinates = $validated['destination_coordinates']; // Corrected field
         $ride->customer_id = Auth::id();
         $ride->status = 'pending';
+        $ride->passengers = $validated['passengers'];
 
         // Calculate distance and fare
         $ride->distance = $this->calculateDistance($ride->pickup_coordinates, $ride->destination_coordinates);
-        $ride->fare_amount = $this->calculateFare($ride->distance);
+        $ride->fare_amount = $this->calculateFare($ride->distance, $ride->passengers);
 
         $ride->save();
 
@@ -146,9 +160,20 @@ class CustomerRideController extends Controller
     /**
      * Calculate the ride fare based on distance.
      */
-    private function calculateFare($distance)
+    private function calculateFare($distance, $passengers)
     {
-        $farePerKm = 5; // Example: $5 per km
-        return ceil($distance) * $farePerKm;
+        $farePerKm = 5; // Base fare per km
+        $passengerSurcharge = 2; // Extra charge per additional passenger
+    
+        // Base fare calculation
+        $fare = ceil($distance) * $farePerKm;
+    
+        // Add passenger surcharge for extra passengers (more than 1)
+        if ($passengers > 1) {
+            $fare += ($passengers - 1) * $passengerSurcharge;
+        }
+    
+        return $fare;
     }
+    
 }

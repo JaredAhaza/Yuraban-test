@@ -122,6 +122,7 @@ Route::middleware(['auth', 'driver', 'driver.approved'])->prefix('driver')->name
     Route::post('/rides/{ride}/complete', [DriverRideController::class, 'complete'])->name('rides.complete');
     Route::post('/rides/{ride}/cancel', [DriverRideController::class, 'cancel'])->name('rides.cancel');
     Route::post('/rides/{ride}/decline', [DriverRideController::class, 'decline'])->name('rides.decline');
+    Route::post('/driver/toggle-online', [DriverRideController::class, 'toggleOnline'])->name('toggleOnline');
 });
 
 

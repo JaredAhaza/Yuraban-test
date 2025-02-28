@@ -35,16 +35,22 @@ class RegisteredUserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:15|unique:users,phone',
-            'role' => 'required|in:customer,driver',
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'gender' => ['required', 'in:male,female,other'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['required', 'string', 'regex:/^\+\d{12}$/', 'unique:users,phone'],
+            'role' => ['required', 'in:customer,driver,admin'],
             'county_id' => 'required|exists:counties,id',
             'subcounty' => 'required|string|max:255',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'digits:4']
         ]);
     
         $user = User::create([
-            'name' => $request->name,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'gender' => $request->gender,
+            'email' => $request->email,
             'phone' => $request->phone,
             'role' => $request->role,
             'county_id' => $request->county_id,
@@ -53,6 +59,9 @@ class RegisteredUserController extends Controller
         ]);
     
         event(new Registered($user));
+        if ($user->role === 'driver' && !$user->is_approved) {
+            return redirect()->route('waiting.approval')->with('status', 'Your application is under review.');
+        }
     
         return redirect()->route('login')->with('success', 'Account created successfully! Please log in.');
     }
@@ -62,81 +71,32 @@ class RegisteredUserController extends Controller
     {
         // Base validation rules
         $rules = [
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'gender' => ['required', 'in:male,female,other'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['required', 'string', 'regex:/^\+\d{12}$/', 'unique:users,phone'],
             'role' => ['required', 'in:customer,driver,admin'],
-            'password' => ['required', 'string', 'digits:4'],
+            'county_id' => 'required|exists:counties,id',
+            'subcounty' => 'required|string|max:255',
+            'password' => ['required', 'string', 'digits:4']
         ];
         
         // Add county and subcounty validation for drivers
-        if ($request->role === 'driver') {
-            $rules['county_id'] = ['required', 'exists:counties,id'];
-            $rules['subcounty'] = ['required', 'string'];
-            
-            // Validate that the subcounty exists in the selected county's sub_counties array
-            $validator = Validator::make($request->all(), $rules);
-            
-            $validator->after(function ($validator) use ($request) {
-                $county = County::find($request->county_id);
-                if ($county && !in_array($request->subcounty, $county->sub_counties)) {
-                    $validator->errors()->add('subcounty', 'The selected subcounty is invalid.');
-                }
-            });
-            
-            if ($validator->fails()) {
-                return response()->json([
-                    'message' => 'The given data was invalid.',
-                    'errors' => $validator->errors(),
-                ], 422);
-            }
-        } else {
-            // For non-drivers, just validate the base rules
-            $validator = Validator::make($request->all(), $rules);
-            
-            if ($validator->fails()) {
-                return response()->json([
-                    'message' => 'The given data was invalid.',
-                    'errors' => $validator->errors(),
-                ], 422);
-            }
-        }
-
-        // Check if the phone number is already registered
-        $existingUser = User::where('phone', $request->phone)->first();
-        if ($existingUser) {
-            // Check if the user is declined
-            if ($existingUser->is_declined) {
-                return response()->json([
-                    'message' => 'The given data was invalid.',
-                    'phone' => 'Your application has been denied. Please try again after 3 months.',
-                ], 422);
-            }
-
-            // Check if the user is approved
-            if ($existingUser->is_approved) {
-                return response()->json([
-                    'phone' => 'You are already registered and approved.',
-                ], 200);
-            }
-        }
-
-        // Create the user with basic fields
-        $userData = [
-            'name' => $request->name,
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'gender' => $request->gender,
+            'email' => $request->email,
             'phone' => $request->phone,
             'role' => $request->role,
-            'is_approved' => $request->role === 'driver' ? false : true,
-            'is_admin' => $request->role === 'admin',
+            'county_id' => $request->county_id,
+            'subcounty' => $request->subcounty,
             'password' => Hash::make($request->password),
-        ];
+        ]);
         
-        // Add county_id and subcounty for drivers
-        if ($request->role === 'driver') {
-            $userData['county_id'] = $request->county_id;
-            $userData['subcounty'] = $request->subcounty;
-        }
 
-        $user = User::create($userData);
+        event(new Registered($user));
 
         // Redirect based on role
         if ($user->role === 'driver' && !$user->is_approved) {
