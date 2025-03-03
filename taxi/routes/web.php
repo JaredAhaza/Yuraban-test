@@ -138,8 +138,45 @@ Route::prefix('api')->group(function () {
     ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
     Route::post('/customer/login', [AuthenticatedSessionController::class, 'customerLogin'])
     ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
-    Route::post('/driver/login', [AuthenticatedSessionController::class, 'driverLogin']);
-    Route::post('/logout', [AuthenticatedSessionController::class, 'logoutApi'])->middleware('auth:sanctum');
+    Route::post('/driver/login', [AuthenticatedSessionController::class, 'driverLogin'])
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/logout', [AuthenticatedSessionController::class, 'logoutApi'])->middleware('auth')
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::get('/rides', [CustomerRideController::class, 'indexapi']) // Get all customer rides
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/rides', [CustomerRideController::class, 'storeapi']) // Request a ride
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::get('/rides/{id}', [CustomerRideController::class, 'showapi']) // View ride details
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/rides/{ride}/cancel', [CustomerRideController::class, 'cancelapi']) // Cancel a ride
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::get('/rides/requests', [CustomerRideController::class, 'requestsapi']) // View all pending rides
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::get('/driverrides', [DriverRideController::class, 'indexapi']) // Get all rides
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/rides/{ride}/accept', [DriverRideController::class, 'acceptapi']) // Accept ride
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/rides/{ride}/decline', [DriverRideController::class, 'declineapi']) // Decline ride
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/rides/{ride}/start', [DriverRideController::class, 'startapi']) // Start ride
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/rides/{ride}/complete', [DriverRideController::class, 'completeapi']) // Complete ride
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/rides/{ride}/cancel', [DriverRideController::class, 'cancelapi']) // Cancel ride
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/toggle-online', [DriverRideController::class, 'toggleOnlineapi']) // Toggle online status
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::get('/profile', [ProfileController::class, 'getProfileApi']) // Get user profile
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::put('/profile/update', [ProfileController::class, 'updateProfileApi']) // Update profile
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/profile/change-password', [ProfileController::class, 'changePasswordApi']) // Change password
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::get('/counties', [RegisteredUserController::class, 'getCounties'])
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::get('/sub-counties/{county_id}', [RegisteredUserController::class, 'getSubCounties'])
+    ->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
 });
 
 require __DIR__.'/auth.php';

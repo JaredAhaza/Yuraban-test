@@ -54,10 +54,10 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                                    <span class="text-gray-600 font-medium">{{ substr($driver->name, 0, 1) }}</span>
+                                                    <span class="text-gray-600 font-medium">{{ substr($driver->first_name, 0, 1) }}</span>
                                                 </div>
                                                 <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $driver->name }}</div>
+                                                    <div class="text-sm font-medium text-gray-900">{{ $driver->first_name }}</div>
                                                     <div class="text-sm text-gray-500">{{ $driver->phone }}</div>
                                                     @if($driver->email)
                                                         <div class="text-sm text-gray-500">{{ $driver->email }}</div>

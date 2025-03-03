@@ -10,6 +10,10 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Validator;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
 
 class AuthenticatedSessionController extends Controller
 {
@@ -68,17 +72,26 @@ class AuthenticatedSessionController extends Controller
     public function customerLogin(Request $request)
     {
         // Validate request
-        $rules->validate([
+        $validated = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string|digits:4',
         ]);
 
+        if ($validated->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validated->errors()
+            ], 400);
+        }
+
+        $validatedData = $validated->validated();
+
         // Attempt to find user
-        $user = User::where('phone', $request->phone)
+        $user = User::where('phone', $validatedData['phone'])
                     ->where('role', 'customer')
                     ->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($validatedData['password'], $user->password)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid credentials'
@@ -86,13 +99,11 @@ class AuthenticatedSessionController extends Controller
         }
 
         // Create API Token
-        $token = $user->createToken('customer-token')->plainTextToken;
 
         return response()->json([
             'status' => 'success',
             'message' => 'Login successful',
             'user' => $user,
-            'token' => $token
         ], 200);
     }
 
@@ -102,17 +113,26 @@ class AuthenticatedSessionController extends Controller
     public function driverLogin(Request $request)
     {
         // Validate request
-        $request->validate([
+        $validated = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string|digits:4',
         ]);
 
+        if ($validated->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validated->errors()
+            ], 400);
+        }
+
+        $validatedData = $validated->validated();
+
         // Attempt to find user
-        $user = User::where('phone', $request->phone)
+        $user = User::where('phone', $validatedData['phone'])
                     ->where('role', 'driver')
                     ->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($validatedData['password'], $user->password)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid credentials'
@@ -127,14 +147,12 @@ class AuthenticatedSessionController extends Controller
             ], 403);
         }
 
-        // Create API Token
-        $token = $user->createToken('driver-token')->plainTextToken;
+
 
         return response()->json([
             'status' => 'success',
             'message' => 'Login successful',
             'user' => $user,
-            'token' => $token
         ], 200);
     }
 
@@ -143,13 +161,22 @@ class AuthenticatedSessionController extends Controller
      */
     public function logoutApi(Request $request)
     {
-        $request->user()->tokens()->delete();
-
+        // Ensure the user is authenticated before attempting logout
+        if (auth()->check()) {
+            auth()->logout(); // Log out the user
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logged out successfully'
+            ], 200);
+        }
+    
         return response()->json([
-            'status' => 'success',
-            'message' => 'Logged out successfully'
-        ], 200);
+            'status' => 'error',
+            'message' => 'User not authenticated'
+        ], 401);
     }
+    
+
 
     /**
      * Destroy an authenticated session.
